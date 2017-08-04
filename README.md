@@ -1,1 +1,1 @@
-"# Nokia5110 Component for PSoC" 
+# Nokia5110 Component for PSoC

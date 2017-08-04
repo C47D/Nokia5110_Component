@@ -1,8 +1,8 @@
 /****************************************************************************
 * This file is part of the Custom Component for the Nokia5110 LCD Driver
 *
-* Copyright (C) 2017 Carlos Diaz <carlos.santiago.diaz@gmail.com>
-*               2017 Sebastian Hernandez <sxxh@live.com>
+* Original port: 2016 Sebastian Hernandez <sxxh@live.com>
+* PSoC Custom Component: 2017 Carlos Diaz <carlos.santiago.diaz@gmail.com>
 *
 * Permission to use, copy, modify, and/or distribute this software for any
 * purpose with or without fee is hereby granted, provided that the above
