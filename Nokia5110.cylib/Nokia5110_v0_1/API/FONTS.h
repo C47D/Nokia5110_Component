@@ -20,6 +20,7 @@
 #ifndef `$INSTANCE_NAME`_FONTS_H_
 #define `$INSTANCE_NAME`_FONTS_H_
 
+#if (INCLUDE_SMALL_FONT)
 /***************************************************************************
 * character generator
 * This table defines the standard ASCII characters in a 3x5 dot format.
@@ -122,7 +123,9 @@ static const char  SmallFont[106][3] = {
 	{ 0x04, 0x06, 0x02 },   // ~
 	{ 0x1F, 0x1F, 0x1F },   // delete
 };
+#endif
 
+#if (INCLUDE_MIDDLE_FONT)
 /***************************************************************************
 * character generator
 * This table defines the standard ASCII characters in a 5x7 dot format.
@@ -232,6 +235,9 @@ static const char MiddleFont [102][5] =
   { 0x3E, 0x3E, 0x3E, 0x3E, 0x3E },  // 84 Stop			
   { 0x00, 0x7F, 0x3E, 0x1C, 0x08 }   // 85 Play			
 };
+#endif
+
+#if (INCLUDE_BIG_FONT)
 /***************************************************************************
 * Character generator
 * This table defines the standard ASCII characters in a 8x15 dot format.
@@ -330,6 +336,7 @@ static const char BigFont [][8][2] =
 { {0xF0, 0x47}, {0xF0, 0x4F}, {0x00, 0x48}, {0x00, 0x48}, {0x00, 0x48}, {0x00, 0x68}, {0xF0, 0x3F}, {0xF0, 0x1F} } , // y
 { {0x30, 0x0C}, {0x30, 0x0E}, {0x10, 0x0B}, {0x90, 0x09}, {0xD0, 0x08}, {0x70, 0x08}, {0x30, 0x0C}, {0x10, 0x0C} }   // z
 };
+#endif
 
 #endif /* `$INSTANCE_NAME`_FONTS_H_ */
 
