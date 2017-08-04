@@ -20,7 +20,9 @@
 #ifndef `$INSTANCE_NAME`_FONTS_H_
 #define `$INSTANCE_NAME`_FONTS_H_
 
-#if (INCLUDE_SMALL_FONT)
+#include "`$INSTANCE_NAME`_CONFIG.h"
+
+#if (INCLUDE_SMALL_FONT == 1)
 /***************************************************************************
 * character generator
 * This table defines the standard ASCII characters in a 3x5 dot format.
@@ -125,7 +127,7 @@ static const char  SmallFont[106][3] = {
 };
 #endif
 
-#if (INCLUDE_MIDDLE_FONT)
+#if (INCLUDE_MIDDLE_FONT == 1)
 /***************************************************************************
 * character generator
 * This table defines the standard ASCII characters in a 5x7 dot format.
@@ -237,7 +239,7 @@ static const char MiddleFont [102][5] =
 };
 #endif
 
-#if (INCLUDE_BIG_FONT)
+#if (INCLUDE_BIG_FONT == 1)
 /***************************************************************************
 * Character generator
 * This table defines the standard ASCII characters in a 8x15 dot format.
