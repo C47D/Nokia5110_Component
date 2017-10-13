@@ -1,0 +1,52 @@
+/**
+ * PCD544 LCD Controller command list
+ */
+
+#ifndef `$INSTANCE_NAME`_CMD_H
+#define `$INSTANCE_NAME`_CMD_H
+
+// H = 0 or 1
+enum {
+    // commands
+    PCD544_NOP_CMD  = 0x00,
+    PCD544_FUNCTION_SET_CMD  = 0x20,
+    // options
+    PCD544_FUNCTION_SET_CHIP_ACTIVE     = 0x00,
+    PCD544_FUNCTION_SET_CHIP_POWER_DOWN = 0x04,
+    PCD544_FUNCTION_SET_SET_HORIZONTAL_ADDRESSING   = 0x00,
+    PCD544_FUNCTION_SET_VERTICAL_ADDRESSING         = 0x02,
+    PCD544_FUNCTION_SET_BASIC_INSTRUCTION_SET       = 0x00,
+    PCD544_FUNCTION_SET_ADVANCED_INSTRUCTION_SET    = 0x01,
+};
+
+// H = 0
+enum {
+    // commands
+    PCD544_DISPLAY_CTRL_CMD = 0x08,
+    PCD544_SET_Y_ADDR_CMD   = 0x40,
+    PCD544_SET_X_ADDR_CMD   = 0x80,
+    // DISPLAY_CTRL command options
+    PCD544_DISPLAY_CTRL_DISPLAY_BLANK       = 0x00,
+    PCD544_DISPLAY_CTRL_NORMAL_MODE         = 0x04,
+    PCD544_DISPLAY_CTRL_ALL_SEGMENTS_ON     = 0x01,
+    PCD544_DISPLAY_CTRL_INVERSE_VIDEO_MODE  = 0x05,
+    // SET_Y command options are 0 <= Y <= 5
+    // SET_X command options are 0 <= X <= 83
+};
+
+// H = 1
+enum {
+    // commands
+    PCD544_TMP_CTRL_CMD = 0x04,
+    PCD544_SET_BIAS_CMD = 0x10,
+    PCD544_SET_VOP_CMD  = 0x80,
+    // options
+    PCD544_TMP_CTRL_COEFF_0 = 0x00,
+    PCD544_TMP_CTRL_COEFF_1 = 0x01,
+    PCD544_TMP_CTRL_COEFF_2 = 0x02,
+    PCD544_TMP_CTRL_COEFF_3 = 0x03,
+};
+
+#endif
+
+/* [] END OF FILE */

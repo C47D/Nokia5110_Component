@@ -17,12 +17,6 @@
 * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 ****************************************************************************/
 
-#include <stddef.h>
-
-#include "`$INSTANCE_NAME`_CONFIG.h"
-#include "`$INSTANCE_NAME`_DISPLAY.h"
-#include "`$INSTANCE_NAME`_HAL_SPI.h"
-
 #include "`$DC_PIN`.h"
 #include "`$RST_PIN`.h"
 #include "`$SPI_PERIPHERAL`.h"
@@ -30,6 +24,12 @@
 #if defined(CY_SCB_`$SPI_PERIPHERAL`_H)
 #include "`$SPI_PERIPHERAL`_SPI_UART.h"
 #endif
+
+#include <stddef.h>
+
+#include "`$INSTANCE_NAME`_CONFIG.h"
+#include "`$INSTANCE_NAME`_DISPLAY.h"
+#include "`$INSTANCE_NAME`_LL_SPI.h"
 
 int Background_cursor, py, px;
 
@@ -40,13 +40,11 @@ int Background_cursor, py, px;
 * Return value : None.
 */
 #ifdef DRAW_OVER_BACKGROUND
-void `$INSTANCE_NAME`_Init(const char *background)
+void `$INSTANCE_NAME`_Init(const char* background)
 #else  // DRAW_OVER_BACKGROUND
 void `$INSTANCE_NAME`_Init(void)
 #endif // DRAW_OVER_BACKGROUND
 {
-    uint16_t i;
-
     //    `$INSTANCE_NAME`_Control_Write(SET_RST_CLEAR_DC);
     `$RST_PIN`_Write(1);
     `$DC_PIN`_Write(0);
@@ -61,28 +59,27 @@ void `$INSTANCE_NAME`_Init(void)
     `$INSTANCE_NAME`_SendCommand(0x13); // `$INSTANCE_NAME` bias mode 1:48.
     `$INSTANCE_NAME`_SendCommand(0x20); // `$INSTANCE_NAME` Standard Commands,
                                         // Horizontal addressing mode.
-    `$INSTANCE_NAME`_SendCommand(0x0C); // `$INSTANCE_NAME` in normal mode.
+                                        `$INSTANCE_NAME`_SendCommand(0x0C); // `$INSTANCE_NAME` in normal mode.
 
     `$INSTANCE_NAME`_SendCommand(0x40); // Clear display
     `$INSTANCE_NAME`_SendCommand(0x80);
 
 #ifdef DRAW_OVER_BACKGROUND // DRAW_OVER_BACKGROUND
     if (background == NULL) {
-        uint16_t n;
         `$INSTANCE_NAME`_Goto(0, 0);
-        for (n = 0; n < 504; n++) {
+        for (uint16 n = 0; n < 504; n++) {
             background = 0x00;
             `$INSTANCE_NAME`_SendData(0x00);
         } // 84 pixel x 6 lines = 504
     } else {
         Background = background;
-        for (i = 0; i < 504; i++) {
+        for (uint16_t i = 0; i < 504; i++) {
             `$INSTANCE_NAME`_SendData(Background[i]);
         }
         Background_cursor = 0;
     }
 #else // DRAW_OVER_BACKGROUND
-    for (i = 0; i < 504; i++) {
+    for (uint16_t i = 0; i < 504; i++) {
         `$INSTANCE_NAME`_SendData(0x00);
     }
 #endif
@@ -95,7 +92,8 @@ void `$INSTANCE_NAME`_Init(void)
 * Note : Availble only with DRAW_OVER_BACKGROUND directive
 */
 #ifdef DRAW_OVER_BACKGROUND
-void `$INSTANCE_NAME`_SetBackground(const char *dataPtr) {
+void `$INSTANCE_NAME`_SetBackground(const char* dataPtr)
+{
     Background = dataPtr;
 }
 #endif // DRAW_OVER_BACKGROUND
@@ -106,13 +104,14 @@ void `$INSTANCE_NAME`_SetBackground(const char *dataPtr) {
 * Return value : None.
 * Notes : No change visible at ambient temperature.
 */
-void `$INSTANCE_NAME`_Contrast(uint8_t contrast) {
-    `$INSTANCE_NAME`_SendCommand(0x20 |
-                                 0x01); // `$INSTANCE_NAME`_ Extended Commands.
-    `$INSTANCE_NAME`_SendCommand(
-        0x80 | (contrast & 0x7F));      // Set `$INSTANCE_NAME`_ Vop (Contrast).
-         `$INSTANCE_NAME`_SendCommand(0x20); // `$INSTANCE_NAME`_ Standard Commands,
-                                        // horizontal addressing mode.
+void `$INSTANCE_NAME`_Contrast(uint8_t contrast)
+{
+    // `$INSTANCE_NAME`_ Extended Commands.
+    `$INSTANCE_NAME`_SendCommand(0x20 | 0x01);
+    // Set `$INSTANCE_NAME`_ Vop (Contrast).
+    `$INSTANCE_NAME`_SendCommand(0x80 | (contrast & 0x7F));
+    // `$INSTANCE_NAME`_ Standard Commands, horizontal addressing mode.
+    `$INSTANCE_NAME`_SendCommand(0x20);
 }
 
 /**
@@ -120,17 +119,16 @@ void `$INSTANCE_NAME`_Contrast(uint8_t contrast) {
 * Argument(s) : None.
 * Return value : None.
 */
-void `$INSTANCE_NAME`_Clear(void) {
-    uint16_t i;
-
+void `$INSTANCE_NAME`_Clear(void)
+{
 #ifdef DRAW_OVER_BACKGROUND
     `$INSTANCE_NAME`_SendCommand(0x40);
     `$INSTANCE_NAME`_SendCommand(0x80);
-    for (i = 0; i < 504; i++) {
+    for (uint16_t i = 0; i < 504; i++) {
         `$INSTANCE_NAME`_SendData(Background[i]);
     }
 #else  // DRAW_OVER_BACKGROUND
-    for (i = 0; i < 504; i++) {
+    for (uint16_t i = 0; i < 504; i++) {
         `$INSTANCE_NAME`_SendData(0x00);
     }
 #endif // DRAW_OVER_BACKGROUND
@@ -143,7 +141,8 @@ void `$INSTANCE_NAME`_Clear(void) {
 * @Param: x, y -> Coordinate for new cursor position. x range 0..83, y - 0..5
 * @Return: None.
 */
-void `$INSTANCE_NAME`_Goto(uint8_t column, uint8_t row) {
+void `$INSTANCE_NAME`_Goto(uint8_t column, uint8_t row)
+{
     px = column; // To keep track of the cursor location
     py = row;
 
@@ -163,8 +162,8 @@ void `$INSTANCE_NAME`_Goto(uint8_t column, uint8_t row) {
 * Return value : None.
 */
 #ifdef DRAW_OVER_BACKGROUND
-void `$INSTANCE_NAME`_Chr(char ch, DRAW_TYPE_t dtype, FONT_TYPE_t ft) {
-
+void `$INSTANCE_NAME`_Chr(char ch, DRAW_TYPE_t dtype, FONT_TYPE_t ft)
+{
     switch (ft) {
     case Small_Font: // Small font
         if (dtype == DRAW_OR) {
@@ -208,8 +207,8 @@ void `$INSTANCE_NAME`_Chr(char ch, DRAW_TYPE_t dtype, FONT_TYPE_t ft) {
     }
 }
 #else  // DRAW_OVER_BACKGROUND
-void `$INSTANCE_NAME`_Chr(char ch, FONT_TYPE_t ft) {
-
+void `$INSTANCE_NAME`_Chr(char ch, FONT_TYPE_t ft)
+{
     switch (ft) {
     case Small_Font:
         for (uint8_t i = 0; i < 3; i++) {
@@ -240,9 +239,9 @@ void `$INSTANCE_NAME`_Chr(char ch, FONT_TYPE_t ft) {
 * Return value : None.
 */
 #ifdef DRAW_OVER_BACKGROUND
-void `$INSTANCE_NAME`_Str(const char *dataPtr, DRAW_TYPE_t dtype,
-                          FONT_TYPE_t ft) {
-    uint16_t i;
+void `$INSTANCE_NAME`_Str(const char* dataPtr, DRAW_TYPE_t dtype,
+                          FONT_TYPE_t ft)
+{
     char ch;
 
     while (*dataPtr) {
@@ -250,17 +249,17 @@ void `$INSTANCE_NAME`_Str(const char *dataPtr, DRAW_TYPE_t dtype,
         switch (ft) {
         case Small_Font: // Small font
             if (dtype == DRAW_OR) {
-                for (i = 0; i < 3; i++, Background_cursor++) {
+                for (uint8_t i = 0; i < 3; i++, Background_cursor++) {
                     `$INSTANCE_NAME`_SendData(SmallFont[ch - 32][i] |
                                               Background[Background_cursor]);
                 }
             } else if (dtype == DRAW_XOR) {
-                for (i = 0; i < 3; i++, Background_cursor++) {
+                for (uint8_t i = 0; i < 3; i++, Background_cursor++) {
                     `$INSTANCE_NAME`_SendData(SmallFont[ch - 32][i] ^
                                               Background[Background_cursor]);
                 }
             } else {
-                for (i = 0; i < 3; i++, Background_cursor++) {
+                for (uint8_t i = 0; i < 3; i++, Background_cursor++) {
                     `$INSTANCE_NAME`_SendData(
                         Background[Background_cursor]); // empty space after
                                                         // character
@@ -271,20 +270,19 @@ void `$INSTANCE_NAME`_Str(const char *dataPtr, DRAW_TYPE_t dtype,
         case Middle_Font:
         default: // Default font Middle
             if (dtype == DRAW_OR) {
-                for (i = 0; i < 5; i++, Background_cursor++) {
+                for (uint8_t i = 0; i < 5; i++, Background_cursor++) {
                     `$INSTANCE_NAME`_SendData(MiddleFont[ch - 32][i] |
                                               Background[Background_cursor]);
                 }
             } else if (dtype == DRAW_XOR) {
-                for (i = 0; i < 5; i++, Background_cursor++) {
+                for (uint8_t i = 0; i < 5; i++, Background_cursor++) {
                     `$INSTANCE_NAME`_SendData(MiddleFont[ch - 32][i] ^
                                               Background[Background_cursor]);
                 }
             } else {
-                for (i = 0; i < 5; i++, Background_cursor++) {
-                    `$INSTANCE_NAME`_SendData(
-                        Background[Background_cursor]); // empty space after
-                                                        // character
+                for (uint8_t i = 0; i < 5; i++, Background_cursor++) {
+                    // empty space after character
+                    `$INSTANCE_NAME`_SendData(Background[Background_cursor]);
                 }
             }
             `$INSTANCE_NAME`_SendData(Background[Background_cursor++]);
@@ -293,7 +291,8 @@ void `$INSTANCE_NAME`_Str(const char *dataPtr, DRAW_TYPE_t dtype,
     }
 }
 #else  // DRAW_OVER_BACKGROUND
-void `$INSTANCE_NAME`_Str(const char *dataPtr, FONT_TYPE_t ftype) {
+void `$INSTANCE_NAME`_Str(const char* dataPtr, FONT_TYPE_t ftype)
+{
     char ch;
 
     while (*dataPtr) {
@@ -328,9 +327,10 @@ void `$INSTANCE_NAME`_Str(const char *dataPtr, FONT_TYPE_t ftype) {
 * Return value : None.
 */
 #ifdef DRAW_OVER_BACKGROUND
-void `$INSTANCE_NAME`_BigStr(char *dataPtr, DRAW_TYPE_t dtype) {
-    char *dataPtrVar, ch;
-    uint16_t i;
+void `$INSTANCE_NAME`_BigStr(char* dataPtr, DRAW_TYPE_t dtype)
+{
+    char* dataPtrVar; //, ch;
+    char ch;
 
     dataPtrVar = dataPtr; // draw upper half of text
     `$INSTANCE_NAME`_SendCommand(0x40 | (py & 0x07));
@@ -341,17 +341,17 @@ void `$INSTANCE_NAME`_BigStr(char *dataPtr, DRAW_TYPE_t dtype) {
         ch = *dataPtrVar++;
 
         if (dtype == DRAW_OR) {
-            for (i = 0; i < 8; i++, Background_cursor++) {
+            for (uint8_t i = 0; i < 8; i++, Background_cursor++) {
                 `$INSTANCE_NAME`_SendData(BigFont[ch - 32][i][0] |
                                           Background[Background_cursor]);
             }
         } else if (dtype == DRAW_XOR) {
-            for (i = 0; i < 8; i++, Background_cursor++) {
+            for (uint8_t i = 0; i < 8; i++, Background_cursor++) {
                 `$INSTANCE_NAME`_SendData(BigFont[ch - 32][i][0] ^
                                           Background[Background_cursor]);
             }
         } else {
-            for (i = 0; i < 8; i++, Background_cursor++) {
+            for (uint8_t i = 0; i < 8; i++, Background_cursor++) {
                 `$INSTANCE_NAME`_SendData(Background[Background_cursor]);
             }
         }
@@ -365,17 +365,17 @@ void `$INSTANCE_NAME`_BigStr(char *dataPtr, DRAW_TYPE_t dtype) {
         ch = *dataPtrVar++;
 
         if (dtype == DRAW_OR) {
-            for (i = 0; i < 8; i++, Background_cursor++) {
+            for (uint8_t i = 0; i < 8; i++, Background_cursor++) {
                 `$INSTANCE_NAME`_SendData(BigFont[ch - 32][i][1] |
                                           Background[Background_cursor]);
             }
         } else if (dtype == DRAW_XOR) {
-            for (i = 0; i < 8; i++, Background_cursor++) {
+            for (uint8_t i = 0; i < 8; i++, Background_cursor++) {
                 `$INSTANCE_NAME`_SendData(BigFont[ch - 32][i][1] ^
                                           Background[Background_cursor]);
             }
         } else {
-            for (i = 0; i < 8; i++, Background_cursor++) {
+            for (uint8_t i = 0; i < 8; i++, Background_cursor++) {
                 `$INSTANCE_NAME`_SendData(Background[Background_cursor]);
             }
         }
@@ -383,8 +383,9 @@ void `$INSTANCE_NAME`_BigStr(char *dataPtr, DRAW_TYPE_t dtype) {
     }
 }
 #else  // DRAW_OVER_BACKGROUND
-void `$INSTANCE_NAME`_BigStr(uint8_t x, uint8_t y, char *dataPtr) {
-    char *dataPtrVar;
+void `$INSTANCE_NAME`_BigStr(uint8_t x, uint8_t y, char* dataPtr)
+{
+    char* dataPtrVar;
     char ch;
     uint16_t i;
 
@@ -421,7 +422,8 @@ void `$INSTANCE_NAME`_BigStr(uint8_t x, uint8_t y, char *dataPtr) {
 * Return value : None.
 */
 void `$INSTANCE_NAME`_Image(uint8_t x, uint8_t y, uint8_t xsize, uint8_t ysize,
-                            const char *dataPtr) {
+                            const char* dataPtr)
+{
     uint16_t i, j;
 
     for (j = 0; j < ysize; j++) {
@@ -450,7 +452,8 @@ drawing type
 */
 #ifdef DRAW_OVER_BACKGROUND
 void `$INSTANCE_NAME`_VBargraph(uint8_t x, uint8_t ystart, uint8_t yend,
-                                uint8_t yposition, DRAW_TYPE_t dtype) {
+                                uint8_t yposition, DRAW_TYPE_t dtype)
+{
     char i;
     char j;
     char ch;
@@ -635,7 +638,8 @@ void `$INSTANCE_NAME`_VBargraph(uint8_t x, uint8_t ystart, uint8_t yend,
 }
 #else  // DRAW_OVER_BACKGROUND
 void `$INSTANCE_NAME`_VBargraph(uint8_t x, uint8_t ystart, uint8_t yend,
-                                uint8_t yposition) {
+                                uint8_t yposition)
+{
     char i;
     char j;
     char ch;
@@ -775,7 +779,8 @@ void `$INSTANCE_NAME`_VBargraph(uint8_t x, uint8_t ystart, uint8_t yend,
 */
 #ifdef DRAW_OVER_BACKGROUND
 void `$INSTANCE_NAME`_HBargraph(uint8_t y, uint8_t xstart, uint8_t xend,
-                                uint8_t xposition, DRAW_TYPE_t dtype) {
+                                uint8_t xposition, DRAW_TYPE_t dtype)
+{
     uint16_t i;
 
     `$INSTANCE_NAME`_SendCommand(0x40 | y);
@@ -816,7 +821,8 @@ void `$INSTANCE_NAME`_HBargraph(uint8_t y, uint8_t xstart, uint8_t xend,
 }
 #else  // DRAW_OVER_BACKGROUND
 void `$INSTANCE_NAME`_HBargraph(uint8_t y, uint8_t xstart, uint8_t xend,
-                                uint8_t xposition) {
+                                uint8_t xposition)
+{
     uint16_t i;
 
     `$INSTANCE_NAME`_SendCommand(0x40 | y);
