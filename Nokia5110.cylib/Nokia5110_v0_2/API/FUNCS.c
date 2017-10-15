@@ -8,7 +8,7 @@
 #include "`$SPI_INTERFACE`.h"
 
 #include "`$INSTANCE_NAME`_FUNCS.h"
-#include "`$INSTANCE_NAME`_CONFIG.h"
+//#include "`$INSTANCE_NAME`_CONFIG.h"
 #include "`$INSTANCE_NAME`_LL_SPI.h"
 #include "`$INSTANCE_NAME`_CMD.h"
 
@@ -39,6 +39,7 @@ void `$INSTANCE_NAME`_start(void)
     `$SPI_INTERFACE`_Start();
     `$SS_PIN`_Write(1);
     `$DC_PIN`_Write(0);
+    //`$RST_PIN`_Write(1);
     
     /*
      * 8.1 Initialization
@@ -51,11 +52,11 @@ void `$INSTANCE_NAME`_start(void)
     // Extended Commands.
     `$INSTANCE_NAME`_sendCommand(PCD544_FUNCTION_SET_CMD | PCD544_FUNCTION_SET_ADVANCED_INSTRUCTION_SET);
     // Set Vop (Contrast).
-    `$INSTANCE_NAME`_sendCommand(PCD544_SET_VOP_CMD | 0x74);
+    `$INSTANCE_NAME`_sendCommand(PCD544_SET_VOP_CMD | 0x40);
     // Set Temp coefficent.
     `$INSTANCE_NAME`_sendCommand(PCD544_TMP_CTRL_CMD | PCD544_TMP_CTRL_COEFF_2);
     // Set bias mode 1:48.
-    `$INSTANCE_NAME`_sendCommand(PCD544_SET_BIAS_CMD | 4);
+    `$INSTANCE_NAME`_sendCommand(PCD544_SET_BIAS_CMD | 3);
     // Standard Commands,
     `$INSTANCE_NAME`_sendCommand(PCD544_FUNCTION_SET_CMD | PCD544_FUNCTION_SET_BASIC_INSTRUCTION_SET);
     // Horizontal addressing mode
@@ -68,8 +69,8 @@ void `$INSTANCE_NAME`_start(void)
     // write display data
 
     // After reset the Display is Blank, so this can be removed?
-    `$INSTANCE_NAME`_clearDisplay();
-    `$INSTANCE_NAME`_updateDisplay();
+    //`$INSTANCE_NAME`_clearDisplay();
+    //`$INSTANCE_NAME`_updateDisplay();
 }
 
 void `$INSTANCE_NAME`_reset(void)
@@ -91,7 +92,7 @@ void `$INSTANCE_NAME`_updateDisplay(void)
 {
     `$INSTANCE_NAME`_goto(0, 0);
     // check for a function to write the whole array
-    #if 1
+    #if 0
     for(size_t i = 0; i < displaySize; i++) {
         `$INSTANCE_NAME`_sendData(displayMap[i]);
     }
@@ -131,16 +132,20 @@ void `$INSTANCE_NAME`_clearPixel(const uint8_t column, const uint8_t row)
 
 uint8_t `$INSTANCE_NAME`_getPixel(const uint8_t column, const uint8_t row)
 {
+#if 1
     uint8_t pix = PIXEL_WHITE;
     
     if(`$INSTANCE_NAME`_isValidCoordinate(column, row)) {
         const uint8_t shift = column % 8;
-        pix = (displayMap[column + (row/8)*LCD_WIDTH] |= 1 << shift) != PIXEL_WHITE;
+        pix = (displayMap[column + (row/8)*LCD_WIDTH] & (1 << shift)) != PIXEL_WHITE;
     } else {
         pix = UINT8_MAX;
     }
     
     return pix;
+#else
+    return (displayMap[column + (row/8)*LCD_WIDTH] & (1 << shift)) != PIXEL_WHITE;
+#endif
 }
 
 /* [] END OF FILE */

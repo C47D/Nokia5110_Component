@@ -3,16 +3,17 @@
 <!--This file is machine generated and read. It is not intended to be edited by hand.-->
 <!--Due to this, there is no schema for this file.-->
 <CyGuid_2867d519-54d2-4c01-9830-c51cb08bc3dd type_name="CyDesigner.Common.ProjMgmt.Model.CyPrjMgmtWorkspaceSerialize" version="5" xml_contents_version="3" name="Nokia5110_Component" persistent="Nokia5110_Component.cywrk" platform="NOT_USED">
-<current_project name=".\test_udb.cydsn\test_udb.cyprj" />
+<current_project name=".\test_4200.cydsn\test_4200.cyprj" />
 <wrkspc_folders />
 <files />
 <projects>
 <v>.\Nokia5110.cylib\Nokia5110.cyprj</v>
 <v>.\test_udb.cydsn\test_udb.cyprj</v>
+<v>.\test_4200.cydsn\test_4200.cyprj</v>
 </projects>
 <workspace_id v="a65e0bf5-d19f-4883-82ae-fe962e7ef319" />
-<WriteAppVersionLastSavedWith v="4.1.0.2686" />
-<WriteAppMarketingVersionLastSavedWith v="4.1" />
+<WriteAppVersionLastSavedWith v="4.1.0.3210" />
+<WriteAppMarketingVersionLastSavedWith v="4.1 Update 1" />
 <CyGuid_dcbd9771-0334-43dc-9cc3-fe99dc3c5316 type_name="CyDesigner.Common.ProjMgmt.Model.CyPrjMgmtWorkspaceSerialize+CyPrjDependencyList" version="4">
 <wrkspc_dependencies />
 </CyGuid_dcbd9771-0334-43dc-9cc3-fe99dc3c5316>
