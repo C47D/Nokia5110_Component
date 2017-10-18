@@ -17,12 +17,12 @@
 * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 ****************************************************************************/
 
-#include <`$DC_PIN`.h>
-#include <`$SS_PIN`.h>
-#include <`$SPI_INTERFACE`.h>
+#include <`$DC`.h>
+#include <`$SS`.h>
+#include <`$SPI`.h>
 
-#if defined(CY_SCB_`$SPI_INTERFACE`_H)
-#include <`$SPI_INTERFACE`_SPI_UART.h>
+#if defined(CY_SCB_`$SPI`_H)
+#include <`$SPI`_SPI_UART.h>
 #endif
 
 #include <stdint.h>
@@ -36,63 +36,63 @@
 */
 void `$INSTANCE_NAME`_sendData(const uint8_t data)
 {
-    `$DC_PIN`_Write(1);
+    `$DC`_Write(1);
 #if defined(CY_SCB_`$SPI_INTERFACE`_H) // SCB Block
 
-    `$SPI_INTERFACE`_SpiUartClearRxBuffer();
-    `$SPI_INTERFACE`_SpiUartClearTxBuffer();
+    `$SPI`_SpiUartClearRxBuffer();
+    `$SPI`_SpiUartClearTxBuffer();
 
-    `$SS_PIN`_Write(0);
-    `$SPI_INTERFACE`_SpiUartWriteTxData(data);
+    `$SS`_Write(0);
+    `$SPI`_SpiUartWriteTxData(data);
 
-    while (`$SPI_INTERFACE`_SpiUartGetRxBufferSize() != 1) {
+    while (`$SPI`_SpiUartGetRxBufferSize() != 1) {
     }
-    `$SS_PIN`_Write(1);
+    `$SS`_Write(1);
 
 #else // UDB Block
 
-    `$SPI_INTERFACE`_ClearRxBuffer();
-    `$SPI_INTERFACE`_ClearTxBuffer();
+    `$SPI`_ClearRxBuffer();
+    `$SPI`_ClearTxBuffer();
 
-    `$SS_PIN`_Write(0);
-    `$SPI_INTERFACE`_WriteTxData(data);
+    `$SS`_Write(0);
+    `$SPI`_WriteTxData(data);
 
-    while (!(`$SPI_INTERFACE`_ReadTxStatus() & `$SPI_INTERFACE`_STS_BYTE_COMPLETE)) {
+    while (!(`$SPI`_ReadTxStatus() & `$SPI`_STS_BYTE_COMPLETE)) {
     }
-    `$SS_PIN`_Write(1);
+    `$SS`_Write(1);
 
 #endif
 }
 
 void `$INSTANCE_NAME`_sendArrayData(const uint8_t *data, const size_t size)
 {
-    `$DC_PIN`_Write(1);
+    `$DC`_Write(1);
 #if defined(CY_SCB_`$SPI_PERIPHERAL`_H) // SCB based SPI
     
-    `$SPI_INTERFACE`_SpiUartClearRxBuffer();
-    `$SPI_INTERFACE`_SpiUartClearTxBuffer();
+    `$SPI`_SpiUartClearRxBuffer();
+    `$SPI`_SpiUartClearTxBuffer();
 
-    `$SS_PIN`_Write(0);
-    `$SPI_INTERFACE`_SpiUartPutArray(data, size);
+    `$SS`_Write(0);
+    `$SPI`_SpiUartPutArray(data, size);
 
     // Wait for the RxBuffer to have size + 1 bytes (W_REGISTER_CMD + data)
     // we're not using the SS pin embedded on the SCB component, so can't
     // rely on using the SPI_Status function.
-    while (`$SPI_INTERFACE`_SpiUartGetRxBufferSize() != size) {
+    while (`$SPI`_SpiUartGetRxBufferSize() != size) {
     }
-    `$SS_PIN`_Write(1);
+    `$SS`_Write(1);
 
 #else
     
-    `$SPI_INTERFACE`_ClearRxBuffer();
-    `$SPI_INTERFACE`_ClearTxBuffer();
+    `$SPI`_ClearRxBuffer();
+    `$SPI`_ClearTxBuffer();
 
-    `$SS_PIN`_Write(0);
-    `$SPI_INTERFACE`_PutArray(data, size);
+    `$SS`_Write(0);
+    `$SPI`_PutArray(data, size);
 
-    while (!(`$SPI_INTERFACE`_ReadTxStatus() & `$SPI_INTERFACE`_STS_BYTE_COMPLETE)) {
+    while (!(`$SPI`_ReadTxStatus() & `$SPI`_STS_BYTE_COMPLETE)) {
     }
-    `$SS_PIN`_Write(1);
+    `$SS`_Write(1);
     
 #endif
 }
@@ -104,30 +104,30 @@ void `$INSTANCE_NAME`_sendArrayData(const uint8_t *data, const size_t size)
 */
 void `$INSTANCE_NAME`_sendCommand(const uint8_t cmd)
 {
-    `$DC_PIN`_Write(0);
+    `$DC`_Write(0);
 #if defined(CY_SCB_`$SPI_INTERFACE`_H) // SCB Block
 
-    `$SPI_INTERFACE`_SpiUartClearRxBuffer();
-    `$SPI_INTERFACE`_SpiUartClearTxBuffer();
+    `$SPI`_SpiUartClearRxBuffer();
+    `$SPI`_SpiUartClearTxBuffer();
 
-    `$SS_PIN`_Write(0);
-    `$SPI_INTERFACE`_SpiUartWriteTxData(cmd);
+    `$SS`_Write(0);
+    `$SPI`_SpiUartWriteTxData(cmd);
 
-    while (`$SPI_INTERFACE`_SpiUartGetRxBufferSize() != 1) {
+    while (`$SPI`_SpiUartGetRxBufferSize() != 1) {
     }
-    `$SS_PIN`_Write(1);
+    `$SS`_Write(1);
 
 #else // UDB Block
 
-    `$SPI_INTERFACE`_ClearRxBuffer();
-    `$SPI_INTERFACE`_ClearTxBuffer();
+    `$SPI`_ClearRxBuffer();
+    `$SPI`_ClearTxBuffer();
 
-    `$SS_PIN`_Write(0);
-    `$SPI_INTERFACE`_WriteTxData(cmd);
+    `$SS`_Write(0);
+    `$SPI`_WriteTxData(cmd);
 
-    while (!(`$SPI_INTERFACE`_ReadTxStatus() & `$SPI_INTERFACE`_STS_BYTE_COMPLETE)) {
+    while (!(`$SPI`_ReadTxStatus() & `$SPI`_STS_BYTE_COMPLETE)) {
     }
-    `$SS_PIN`_Write(1);
+    `$SS`_Write(1);
 
 #endif
 }

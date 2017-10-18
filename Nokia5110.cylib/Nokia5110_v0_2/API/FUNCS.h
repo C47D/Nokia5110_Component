@@ -21,6 +21,9 @@ void `$INSTANCE_NAME`_setPixel(const uint8_t column, const uint8_t row);
 void `$INSTANCE_NAME`_clearPixel(const uint8_t column, const uint8_t row);
 uint8_t `$INSTANCE_NAME`_getPixel(const uint8_t column, const uint8_t row);
 
+void `$INSTANCE_NAME`_setYBank(const uint8_t bank);
+void `$INSTANCE_NAME`_setXBank(const uint8_t bank);
+
 #endif
 
 /* [] END OF FILE */

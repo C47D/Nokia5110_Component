@@ -6,8 +6,8 @@ int main(void)
 
     UART_Start();
     UART_PutString("Test\r\n");
-    Nokia5110_start();
     
+    Nokia5110_start();
     Nokia5110_setPixel(10, 10);
     Nokia5110_setPixel(20, 20);
     Nokia5110_setPixel(30, 30);
@@ -15,9 +15,6 @@ int main(void)
     Nokia5110_updateDisplay();
     CyDelay(1000);
     Nokia5110_clearPixel(15, 15);
-    Nokia5110_updateDisplay();
-    CyDelay(1000);
-    Nokia5110_clearDisplay();
     Nokia5110_updateDisplay();
     
     while(1) {

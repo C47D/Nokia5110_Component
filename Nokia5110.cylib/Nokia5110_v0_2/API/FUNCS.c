@@ -2,10 +2,10 @@
 
 #include "CyLib.h"
 
-#include "`$RST_PIN`.h"
-#include "`$DC_PIN`.h"
-#include "`$SS_PIN`.h"
-#include "`$SPI_INTERFACE`.h"
+#include "`$RST`.h"
+#include "`$DC`.h"
+#include "`$SS`.h"
+#include "`$SPI`.h"
 
 #include "`$INSTANCE_NAME`_FUNCS.h"
 //#include "`$INSTANCE_NAME`_CONFIG.h"
@@ -27,6 +27,19 @@ enum {
     displaySize = (LCD_WIDTH * LCD_HEIGHT) / 8,
 };
 
+/*
+ * The displayMap variable stores a buffer representation of the
+ * pixels on our display. There are 504 total bits in this array,
+ * same as how many pixels there are on a 84 x 48 display.
+ * Each byte in this array covers a 8-pixel vertical block on the
+ * display. Each successive byte covers the next 8-pixel column over
+ * until you reach the right-edge of the display and step down 8 rows.
+ * To update the display, we first have to write to this array, then
+ * call the updateDisplay() function, which sends this whole array
+ * to the PCD8544.
+ * Because the PCD8544 won't let us write individual pixels at a
+ * time, this is how we can make targeted changes to the display.
+ */
 static uint8_t displayMap[displaySize] = {0};
 
 static inline bool `$INSTANCE_NAME`_isValidCoordinate(const uint8_t column, const uint8_t row)
@@ -36,17 +49,10 @@ static inline bool `$INSTANCE_NAME`_isValidCoordinate(const uint8_t column, cons
 
 void `$INSTANCE_NAME`_start(void)
 {
-    `$SPI_INTERFACE`_Start();
-    `$SS_PIN`_Write(1);
-    `$DC_PIN`_Write(0);
-    //`$RST_PIN`_Write(1);
+    `$SPI`_Start();
+    `$SS`_Write(1);
+    `$DC`_Write(0);
     
-    /*
-     * 8.1 Initialization
-     * Immediately following power-on, the contents of all internal registers and
-     * of the RAM are undefined. A /RES pulse must be applied.
-     * 
-    */
     `$INSTANCE_NAME`_reset();
     
     // Extended Commands.
@@ -68,55 +74,42 @@ void `$INSTANCE_NAME`_start(void)
     `$INSTANCE_NAME`_sendCommand(PCD544_SET_X_ADDR_CMD | 0);
     // write display data
 
-    // After reset the Display is Blank, so this can be removed?
-    //`$INSTANCE_NAME`_clearDisplay();
-    //`$INSTANCE_NAME`_updateDisplay();
+    `$INSTANCE_NAME`_clearDisplay();
+    `$INSTANCE_NAME`_updateDisplay();
 }
 
 void `$INSTANCE_NAME`_reset(void)
 {
-    `$RST_PIN`_Write(0);
+    `$RST`_Write(0);
     CyDelay(RST_DELAY);
-    `$RST_PIN`_Write(1);
+    `$RST`_Write(1);
 }
 
-// this function clear the entire display
-// eigther white or black.
 void `$INSTANCE_NAME`_clearDisplay(void)
 {
-    // por ahora solo escribimos en fondo blanco y pixel negro
     memset(displayMap, 0, displaySize);
 }
 
 void `$INSTANCE_NAME`_updateDisplay(void)
 {
     `$INSTANCE_NAME`_goto(0, 0);
-    // check for a function to write the whole array
-    #if 0
-    for(size_t i = 0; i < displaySize; i++) {
-        `$INSTANCE_NAME`_sendData(displayMap[i]);
-    }
-    #else
-        `$INSTANCE_NAME`_sendArrayData(displayMap, displaySize);
-    #endif
+    `$INSTANCE_NAME`_sendArrayData(displayMap, displaySize);
 }
 
 void `$INSTANCE_NAME`_goto(const uint8_t column, const uint8_t row)
 {
-    `$INSTANCE_NAME`_sendCommand(0x80 | column);
-    `$INSTANCE_NAME`_sendCommand(0x40 | row);
+    `$INSTANCE_NAME`_sendCommand(PCD544_SET_X_ADDR_CMD | column);
+    `$INSTANCE_NAME`_sendCommand(PCD544_SET_Y_ADDR_CMD | row);
 }
 
 void `$INSTANCE_NAME`_writePixel(const pixel pixel,const uint8_t column, const uint8_t row)
 {
-    if(`$INSTANCE_NAME`_isValidCoordinate(column, row)) {
-        const uint8_t shift = column % 8;
+    const uint8_t shift = column % 8;
         
-        if (PIXEL_WHITE != pixel) {
-            displayMap[column + (row/8)*LCD_WIDTH] |= 1 << shift;
-        } else {
-            displayMap[column + (row/8)*LCD_WIDTH] &= ~(1<< shift);
-        }
+    if (PIXEL_WHITE != pixel) {
+        displayMap[column + (row/8)*LCD_WIDTH] |= 1 << shift;
+    } else {
+        displayMap[column + (row/8)*LCD_WIDTH] &= ~(1<< shift);
     }
 }
 
@@ -132,20 +125,18 @@ void `$INSTANCE_NAME`_clearPixel(const uint8_t column, const uint8_t row)
 
 uint8_t `$INSTANCE_NAME`_getPixel(const uint8_t column, const uint8_t row)
 {
-#if 1
-    uint8_t pix = PIXEL_WHITE;
-    
-    if(`$INSTANCE_NAME`_isValidCoordinate(column, row)) {
-        const uint8_t shift = column % 8;
-        pix = (displayMap[column + (row/8)*LCD_WIDTH] & (1 << shift)) != PIXEL_WHITE;
-    } else {
-        pix = UINT8_MAX;
-    }
-    
-    return pix;
-#else
+    const uint8_t shift = column % 8;
     return (displayMap[column + (row/8)*LCD_WIDTH] & (1 << shift)) != PIXEL_WHITE;
-#endif
+}
+
+void `$INSTANCE_NAME`_setYBank(const uint8_t bank)
+{
+    `$INSTANCE_NAME`_sendCommand(PCD544_SET_Y_ADDR_CMD | (bank & 0x07));
+}
+
+void `$INSTANCE_NAME`_setXBank(const uint8_t bank)
+{
+    `$INSTANCE_NAME`_sendCommand(PCD544_SET_X_ADDR_CMD | (bank & 0x7F));
 }
 
 /* [] END OF FILE */
